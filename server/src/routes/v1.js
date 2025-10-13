@@ -4,7 +4,7 @@ const planetsRouter = require('./planets/planets.Router');
 const launchesRouter = require('./launches/launches.router');
 
 const api = express.Router();
-api.use('/planets', planetsRouter); 
+api.use('/planets',planetsRouter); 
 api.use('/launches',launchesRouter);
 
 module.exports = api;
