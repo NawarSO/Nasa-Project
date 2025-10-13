@@ -1,3 +1,4 @@
+require('dotenv').config();
 const request = require('supertest');
 const app = require('../../app');
 const {mongoConnect, 
@@ -15,7 +16,7 @@ describe('Launches API', ()=> {
     describe("Test get /launches", () =>{
     
         test("It should respond with 200 success ", async ()=>{
-            const response = await request(app).get('/launches').expect(200);
+            const response = await request(app).get('/v1/launches').expect(200);
           //  .expect('Content-Type, /any string/ ')  // Here we test if the response is matching the string
           //  .expect(response.statusCode).toBe(200); 
 
@@ -41,7 +42,7 @@ describe('Launches API', ()=> {
             launchDate: 'Naw',
         };
         test("It should response with 201 created", async ()=>{
-            const response = await request(app).post('/launches').send(completeData)
+            const response = await request(app).post('/v1/launches').send(completeData)
             .expect('Content-Type', /json/)
             .expect(201);
             const requestDate = new Date (completeData.launchDate).valueOf();
@@ -51,7 +52,7 @@ describe('Launches API', ()=> {
         });
 
         test("it should catch Missing required launch property ", async () =>{
-            const response = await request(app).post('/launches').send(dataWithoutdate)
+            const response = await request(app).post('/v1/launches').send(dataWithoutdate)
             .expect(400)
             .expect('Content-Type', /json/)
             
@@ -60,7 +61,7 @@ describe('Launches API', ()=> {
                 });
         }); 
         test("it should catch Enter a valid date", async ()=>{
-            const response = await request(app).post('/launches').send(dataWithInvalidDate)
+            const response = await request(app).post('/v1/launches').send(dataWithInvalidDate)
                 .expect(400)
                 .expect('Content-Type', /json/)
             expect(response.body).toStrictEqual({
