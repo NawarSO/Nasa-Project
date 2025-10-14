@@ -1,19 +1,80 @@
 const launchesDatabase = require('./lunches.mongo.js');
 const planets = require('./planets.mongo.js');
-
+const axios = require('axios');
 
 const  DEFAULT_FLIGHT_NUMBER = 100;
+const SPACEX_API_URL = 'https://api.spacexdata.com/v4/launches/query';
 
 const launch ={
-    flightNumber:100,
-    mission: 'Nawar1',
-    rocket : 'Explorer IS1',
-    launchDate: new Date('December 27, 2030'),
-    target: 'Kepler-442 b',
-    customer: ['NASA', 'ZTM'],
-    upcoming: true,
-    success: true
+    flightNumber:100,   // flight_number
+    mission: 'Nawar1',  //name
+    rocket : 'Explorer IS1', // rocket.name
+    launchDate: new Date('December 27, 2030'), // date_local
+    target: 'Kepler-442 b', // not applicable 
+    customer: ['NASA', 'ZTM'], // payload.customer for each payload
+    upcoming: true, // upcoming
+    success: true //success
+}
 
+async function populateLaunches(){
+    const response = await axios.post(SPACEX_API_URL, {
+        query:{},
+        options: {
+            pagination: false, // to get all of the launches if it is true we will get only 10 launches (one page)
+            populate: [
+                {
+                    path:'rocket',
+                    select:{
+                        name:1
+                    }
+                },
+                {
+                    path:'payloads',
+                    select:{
+                        'customers': 1
+                    }
+                }
+            ]
+        }
+    });
+
+    if(response.status !== 200){
+        console.log('Problem downloading launch data');
+        throw new Error('Launch data download failed');
+    }
+
+    const launchDocs = response.data.docs;
+    for(launchDoc of launchDocs){
+        const payloads = launchDoc['payloads'];
+        const customers = payloads.flatMap((paylaod)=> { // flatMap is a function that will take every element in the array and call the callback function for it. so in our example: the payloads array has many elements so for every element it will return it and append it to the array that called customers. 
+            return paylaod['customers'];
+        })
+        const launch = {
+            flightNumber: launchDoc ['flight_number'],
+            mission: launchDoc ['name'],
+            rocket: launchDoc['rocket']['name'],
+            launchDate: launchDoc['date_local'],
+            upcoming: launchDoc['upcoming'],
+            success: launchDoc['success'],
+            customers, // it will take the customers auto from the customers list above
+        }
+        console.log(`${launch.flightNumber} ${launch.mission}`);
+        await saveLaunch(launch);
+    };
+}
+
+async function loadLaunchData(){
+    const firstLaunch = await findLaunch({
+        flightNumber:1, // 
+        rocket: "Falcon 1", //      // get them from request them in postman 
+        mission: 'FalconSat'//
+    });
+    if(firstLaunch){ // in this way we check if the first launch of the space X api found in our db so we don't need to request them again and get them because we already have them.
+        console.log('The spaceX Data already loaded');
+    } else{
+        console.log('Downloading the SpaceX data...');
+        await populateLaunches();
+    }   
 }
 
  async function initializeLaunches() { // used to call saveLaunch(launch);
@@ -27,10 +88,12 @@ const launch ={
 
 initializeLaunches();
 
-// launches.set(launch.flightNumber, launch);
+async function findLaunch(filter){
+    return await launchesDatabase.findOne(filter);
+}
 
 async function existLauncheWithId(launchId){
-    return await launchesDatabase.findOne({
+    return await findLaunch({
         flightNumber:launchId
     });
 }
@@ -55,12 +118,6 @@ async function getLatestFlightNumber() {
 
 
 async function saveLaunch(launch) { // upsert operation : update if exist and insert if not.
-   const planet = await planets.findOne({
-    keplerName: launch.target,
-   },);
-   if(!planet){
-        throw new Error('No matching planet found.');
-   }
     await launchesDatabase.findOneAndUpdate({ 
         flightNumber: launch.flightNumber, // the key that the compare based on it. 
     }, launch,{ // value what we will save
@@ -69,7 +126,13 @@ async function saveLaunch(launch) { // upsert operation : update if exist and in
 };
 
 
-async function scheduleNewLaunch(launch) {
+async function scheduleNewLaunch(launch) {  
+    const planet = await planets.findOne({
+        keplerName: launch.target,
+       },);
+       if(!planet){
+            throw new Error('No matching planet found.');
+       }
     const newFlightNumber = await getLatestFlightNumber() + 1;
     const newLaunch = Object.assign(launch,{
         customer: ['Nasa', 'Nawar'],
@@ -108,6 +171,7 @@ async function abortLauchById(launchId){
 
 
 module.exports = {
+    loadLaunchData,
     getAllLaunches,
     scheduleNewLaunch,
     existLauncheWithId,
