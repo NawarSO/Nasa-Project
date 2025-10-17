@@ -77,17 +77,6 @@ async function loadLaunchData(){
     }   
 }
 
- async function initializeLaunches() { // used to call saveLaunch(launch);
-    try {
-        await saveLaunch(launch);
-        console.log('Launch saved successfully');
-    } catch (error) {
-        console.error('Error saving launch:', error);
-    }
-}
-
-initializeLaunches();
-
 async function findLaunch(filter){
     return await launchesDatabase.findOne(filter);
 }
