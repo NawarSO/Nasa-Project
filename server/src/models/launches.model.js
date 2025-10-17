@@ -1,10 +1,10 @@
 const launchesDatabase = require('./lunches.mongo.js');
 const planets = require('./planets.mongo.js');
 const axios = require('axios');
-
+const {getPagination} = require('./../services/query.js');
 const  DEFAULT_FLIGHT_NUMBER = 100;
 const SPACEX_API_URL = 'https://api.spacexdata.com/v4/launches/query';
-
+/*
 const launch ={
     flightNumber:100,   // flight_number
     mission: 'Nawar1',  //name
@@ -15,7 +15,7 @@ const launch ={
     upcoming: true, // upcoming
     success: true //success
 }
-
+*/
 async function populateLaunches(){
     const response = await axios.post(SPACEX_API_URL, {
         query:{},
@@ -101,9 +101,14 @@ async function existLauncheWithId(launchId){
 function getAllLaunches(){
     return Array.from(launches.values());   // review vid 103 06:57
 } */
-async function getAllLaunches(){
+async function getAllLaunches(skip, limit){
+    console.log(`skip is ${skip}`);
+    console.log(`limit is ${limit}`);
     return await launchesDatabase
-        .find({}, {'_id': 0, '__v': 0});
+        .find({}, {'_id': 0, '__v': 0})
+        .sort({flightNumber: 1})
+        .skip(skip)
+        .limit(limit);
 } 
 
 async function getLatestFlightNumber() {
@@ -116,7 +121,6 @@ async function getLatestFlightNumber() {
     return latestLaunch.flightNumber;
 }
 
-
 async function saveLaunch(launch) { // upsert operation : update if exist and insert if not.
     await launchesDatabase.findOneAndUpdate({ 
         flightNumber: launch.flightNumber, // the key that the compare based on it. 
@@ -124,7 +128,6 @@ async function saveLaunch(launch) { // upsert operation : update if exist and in
         upsert: true,
     });
 };
-
 
 async function scheduleNewLaunch(launch) {  
     const planet = await planets.findOne({
@@ -143,20 +146,6 @@ async function scheduleNewLaunch(launch) {
     await saveLaunch(newLaunch);
 };
 
-/*
-function addNewLaunch(launch){
-    latestFlightNumber++;
-launches.set(
-    latestFlightNumber, // key
-    Object.assign(launch, {     // the value but with assigning the latest flight Number to it 
-        flightNumber: latestFlightNumber,
-        customer: ['Nasa', 'Nawar'],
-        upcoming: true,
-        success: true,
-    }));
-}
-*/
-
 async function abortLauchById(launchId){
     const aborted =  await launchesDatabase.updateOne({
         flightNumber: launchId,
@@ -166,9 +155,6 @@ async function abortLauchById(launchId){
     });
     return aborted.acknowledged === true && aborted.modifiedCount === 1;
 }
-
-
-
 
 module.exports = {
     loadLaunchData,
