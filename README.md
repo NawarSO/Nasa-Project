@@ -118,7 +118,7 @@ npm run deploy
 ```
 
 The API will run on:  
-👉 **http://localhost:8000/v1**
+👉 **http://localhost:8000/**
 
 ---
 
@@ -173,6 +173,15 @@ Example error:
   "error": "Invalid launch date"
 }
 ```
+## 🧪 API Testing
+
+### Postman Collection
+Import `postman/NASA-Project.postman_collection.json` into Postman to test all endpoints.
+
+### Setup:
+1. Import the collection file
+2. Set base URL to `http://localhost:8000/v1` 
+3. Start testing!
 
 ---
 
