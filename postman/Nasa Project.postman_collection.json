@@ -1,0 +1,151 @@
+{
+	"info": {
+		"_postman_id": "1b9e2c60-6321-4762-ab9c-e7feb4e287ef",
+		"name": "Nasa Project",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "49145419",
+		"_collection_link": "https://nawarso-9452229.postman.co/workspace/06c7abb3-9feb-4ed5-8705-90495e349304/collection/49145419-1b9e2c60-6321-4762-ab9c-e7feb4e287ef?action=share&source=collection_link&creator=49145419"
+	},
+	"item": [
+		{
+			"name": "Launches",
+			"item": [
+				{
+					"name": "Get Launches(paginations)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8000/v1/launches?limit=5&page=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"v1",
+								"launches"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "5"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								}
+							]
+						},
+						"description": "You can change the values of limit and pages  \nlimit: num of the launches you want to get.  \npage: which page do you want to get.\n\nfor this request we will get the first 5 launches  \nif we keep the limit and change the page to 2 : we will get the second five launches."
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Launches",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8000/v1/launches",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"v1",
+								"launches"
+							]
+						},
+						"description": "You will get all the launches in the database."
+					},
+					"response": []
+				},
+				{
+					"name": "Post Launches",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"mission\": \"testing The API 2\",\r\n    \"rocket\": \"testing The API 2\",\r\n    \"target\": \"Kepler-442 b\",\r\n    \"launchDate\": \"December 12, 2030\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/v1/launches",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"v1",
+								"launches"
+							]
+						},
+						"description": "schedule a new launch."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a Launch",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8000/v1/launches/{{flightNumber}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"v1",
+								"launches",
+								"{{flightNumber}}"
+							]
+						},
+						"description": "Abort specific launch with its flight number."
+					},
+					"response": []
+				}
+			],
+			"description": "This folder contain all the CRODS for the /launches endpoint."
+		},
+		{
+			"name": "Planets",
+			"item": [
+				{
+					"name": "Get Planets",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8000/v1/planets",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"v1",
+								"planets"
+							]
+						},
+						"description": "Get all the habitable planets that discovered."
+					},
+					"response": []
+				}
+			],
+			"description": "This folder contain the only possible CROD for the /planets endpoint."
+		}
+	]
+}
