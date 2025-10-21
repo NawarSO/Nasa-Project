@@ -1,4 +1,4 @@
-const launchesDatabase = require('./lunches.mongo.js');
+const launchesDatabase = require('./launches.mongo.js');
 const planets = require('./planets.mongo.js');
 const axios = require('axios');
 const {getPagination} = require('./../services/query.js');
@@ -77,17 +77,6 @@ async function loadLaunchData(){
     }   
 }
 
- async function initializeLaunches() { // used to call saveLaunch(launch);
-    try {
-        await saveLaunch(launch);
-        console.log('Launch saved successfully');
-    } catch (error) {
-        console.error('Error saving launch:', error);
-    }
-}
-
-initializeLaunches();
-
 async function findLaunch(filter){
     return await launchesDatabase.findOne(filter);
 }
@@ -102,8 +91,6 @@ function getAllLaunches(){
     return Array.from(launches.values());   // review vid 103 06:57
 } */
 async function getAllLaunches(skip, limit){
-    console.log(`skip is ${skip}`);
-    console.log(`limit is ${limit}`);
     return await launchesDatabase
         .find({}, {'_id': 0, '__v': 0})
         .sort({flightNumber: 1})
